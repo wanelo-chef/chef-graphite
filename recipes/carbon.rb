@@ -49,5 +49,4 @@ directory "/opt/graphite/lib/twisted/plugins/" do
 end
 
 runit_service "carbon-cache" do
-  finish_script true
 end
