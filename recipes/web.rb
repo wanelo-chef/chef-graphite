@@ -52,8 +52,6 @@ execute 'install graphite sqlite database' do
   not_if { File.exists?('/opt/graphite/storage/graphite.db')}
 end
 
-
-
 listen_address = node.send node['graphite']['web']['listen_attribute']
 
 smf 'graphite-web' do
@@ -78,49 +76,3 @@ smf 'graphite-web' do
 
   notifies :restart, 'service[graphite-web]'
 end
-
-
-#include_recipe "apache2::mod_python"
-
-#template "/etc/apache2/sites-available/graphite" do
-#  source "graphite-vhost.conf.erb"
-#end
-#
-#apache_site "graphite"
-#
-#directory "/opt/graphite/storage" do
-#  owner node['apache']['user']
-#  group node['apache']['group']
-#end
-#
-#directory '/opt/graphite/storage/log' do
-#  owner node['apache']['user']
-#  group node['apache']['group']
-#end
-#
-#%w{ webapp whisper }.each do |dir|
-#  directory "/opt/graphite/storage/log/#{dir}" do
-#    owner node['apache']['user']
-#    group node['apache']['group']
-#  end
-#end
-#
-#cookbook_file "/opt/graphite/bin/set_admin_passwd.py" do
-#  mode "755"
-#end
-#
-#cookbook_file "/opt/graphite/storage/graphite.db" do
-#  action :create_if_missing
-#  notifies :run, "execute[set admin password]"
-#end
-#
-#execute "set admin password" do
-#  command "/opt/graphite/bin/set_admin_passwd.py root #{node[:graphite][:password]}"
-#  action :nothing
-#end
-#
-#file "/opt/graphite/storage/graphite.db" do
-#  owner node['apache']['user']
-#  group node['apache']['group']
-#  mode "644"
-#end

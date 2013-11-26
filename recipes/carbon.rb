@@ -49,22 +49,3 @@ template '/opt/local/etc/graphite/carbon.conf' do
              'cache_query_interface' => listen_address )
   notifies :restart, 'service[carbon-cache]'
 end
-
-#
-#template '/opt/graphite/conf/storage-schemas.conf' do
-#  owner node['graphite']['carbon']['user']
-#  group node['graphite']['carbon']['group']
-#end
-#
-#execute 'carbon: change graphite storage permissions to apache user' do
-#  command "chown -R #{node['graphite']['carbon']['user']}:#{node['graphite']['carbon']['group']} /opt/graphite/storage"
-#  only_if do
-#    f = File.stat('/opt/graphite/storage')
-#    f.uid == 0 and f.gid == 0
-#  end
-#end
-#
-#directory '/opt/graphite/lib/twisted/plugins/' do
-#  owner node['graphite']['carbon']['user']
-#  group node['graphite']['carbon']['group']
-#end
