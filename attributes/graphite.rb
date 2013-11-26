@@ -4,9 +4,15 @@ default['graphite']['carbon']['listen_attribute'] = 'ipaddress'
 default['graphite']['carbon']['user'] = 'graphite'
 default['graphite']['carbon']['group'] = 'graphite'
 
-default['graphite']['carbon']['package'] = 'py27-graphite-web'
+default['graphite']['web']['packages'] = %w(py27-expat py27-graphite-web)
 default['graphite']['web']['listen_attribute'] = 'ipaddress'
 default['graphite']['web']['port'] = 80
+default['graphite']['web']['user'] = 'graphite'
+default['graphite']['web']['group'] = 'graphite'
+
+default['graphite']['web']['allowed_hosts'] = []
+default['graphite']['web']['secret_key'] = ''
+
 #default[:graphite][:graphite_web][:uri] = "http://launchpadlibrarian.net/82112308/graphite-web-#{node[:graphite][:version]}.tar.gz"
 #default[:graphite][:graphite_web][:checksum] = "cc78bab7fb26b"
 #
