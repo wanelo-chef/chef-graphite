@@ -1,0 +1,35 @@
+#!/bin/bash
+# Simple Ad Hoc Graphite Django Service
+
+set -o xtrace
+. /lib/svc/share/smf_include.sh
+
+if [ -z "$SMF_FMRI" ]; then
+  SMF_FMRI="svc:/graphite/management/graphite-web:default"
+fi
+
+BIND_ADDRESS=<%= @bind_address %>
+BIND_PORT=<%= @bind_port %>
+
+PATH=/usr/sbin:/usr/bin:/opt/custom/bin:/opt/custom/sbin; export PATH
+PIDFILE=/var/run/graphite.pid
+
+case "$1" in
+'start')
+    #### STARTUP
+    PYTHONPATH=/opt/local/lib/python2.7/site-packages/graphite:/opt/local/lib/python2.7
+    /opt/local/bin/django-admin.py runserver --pythonpath=$PYTHONPATH --settings=graphite.settings $BIND_ADDRESS:$BIND_PORT &
+    ;;
+
+'stop')
+    #### SHUTDOWN
+    contract=`svcprop -p restarter/contract $SMF_FMRI`
+    smf_kill_contract ${contract} TERM
+    ;;
+
+*)
+    echo "Usage: $0 { start | stop }"
+    exit $SMF_EXIT_ERR_FATAL
+    ;;
+esac
+exit $SMF_EXIT_OK

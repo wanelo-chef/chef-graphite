@@ -29,13 +29,13 @@ directory node['graphite']['carbon']['local_data_dir'] do
   group node['graphite']['carbon']['group']
 end
 
-listen_interface = node.send node['graphite']['carbon']['listen_attribute']
+listen_address = node.send node['graphite']['carbon']['listen_attribute']
 
 template '/opt/local/etc/graphite/carbon.conf' do
   variables( 'local_data_dir' => node['graphite']['carbon']['local_data_dir'],
-             'line_receiver_interface' => listen_interface,
-             'pickle_receiver_interface' => listen_interface,
-             'cache_query_interface' => listen_interface )
+             'line_receiver_interface' => listen_address,
+             'pickle_receiver_interface' => listen_address,
+             'cache_query_interface' => listen_address )
   notifies :restart, 'service[carbon-cache]'
 end
 
