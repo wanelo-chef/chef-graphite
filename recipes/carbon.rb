@@ -8,20 +8,31 @@ service 'carbon-cache' do
   action :nothing
 end
 
-template '/opt/custom/bin/carbon-cache.sh' do
-  mode 0755
+directory '/var/log/carbon' do
+  group node['graphite']['web']['group']
+  mode 0774
+end
+
+directory '/var/run/carbon' do
+  group node['graphite']['web']['group']
+  mode 0774
 end
 
 smf 'carbon-cache' do
   manifest_type 'graphite'
   user node['graphite']['carbon']['user']
   group node['graphite']['carbon']['group']
-  start_command '/opt/custom/bin/carbon-cache.sh %m'
-  stop_command '/opt/custom/bin/carbon-cache.sh %m'
+  start_command '/opt/local/bin/carbon-cache.py --config=/opt/local/etc/graphite/carbon.conf start'
   stop_timeout 60
-  duration 'transient'
+  working_directory '/opt/graphite'
 end
 
+directory '/opt/graphite/storage' do
+  recursive true
+  owner node['graphite']['carbon']['user']
+  group node['graphite']['carbon']['group']
+  mode 0775
+end
 
 directory node['graphite']['carbon']['local_data_dir'] do
   recursive true
