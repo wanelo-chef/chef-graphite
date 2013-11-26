@@ -1,5 +1,34 @@
 [cache]
-LOCAL_DATA_DIR = /opt/graphite/storage/whisper/
+# Configure carbon directories.
+#
+# OS environment variables can be used to tell carbon where graphite is
+# installed, where to read configuration from and where to write data.
+#
+#   GRAPHITE_ROOT        - Root directory of the graphite installation.
+#                          Defaults to ../
+#   GRAPHITE_CONF_DIR    - Configuration directory (where this file lives).
+#                          Defaults to $GRAPHITE_ROOT/conf/
+#   GRAPHITE_STORAGE_DIR - Storage directory for whipser/rrd/log/pid files.
+#                          Defaults to $GRAPHITE_ROOT/storage/
+#
+# To change other directory paths, add settings to this file. The following
+# configuration variables are available with these default values:
+#
+#   STORAGE_DIR    = $GRAPHITE_STORAGE_DIR
+#   LOCAL_DATA_DIR = STORAGE_DIR/whisper/
+#   WHITELISTS_DIR = STORAGE_DIR/lists/
+#   CONF_DIR       = STORAGE_DIR/conf/
+#   LOG_DIR        = STORAGE_DIR/log/
+#   PID_DIR        = STORAGE_DIR/
+#
+# For FHS style directory structures, use:
+#
+#   STORAGE_DIR    = /var/lib/carbon/
+#   CONF_DIR       = /etc/carbon/
+#   LOG_DIR        = /var/log/carbon/
+#   PID_DIR        = /var/run/
+#
+LOCAL_DATA_DIR = <%= @local_data_dir %>
 
 # Specify the user to drop privileges to
 # If this is blank carbon runs as the user that invokes it
@@ -30,6 +59,17 @@ MAX_CREATES_PER_MINUTE = inf
 LINE_RECEIVER_INTERFACE = <%= @line_receiver_interface %>
 LINE_RECEIVER_PORT = 2003
 
+# Set this to True to enable the UDP listener. By default this is off
+# because it is very common to run multiple carbon daemons and managing
+# another (rarely used) port for every carbon instance is not fun.
+ENABLE_UDP_LISTENER = True
+UDP_RECEIVER_INTERFACE = <%= @line_receiver_interface %>
+UDP_RECEIVER_PORT = 2003
+
+# Per security concerns outlined in Bug #817247 the pickle receiver
+# will use a more secure and slightly less efficient unpickler.
+# Set this to True to revert to the old-fashioned insecure unpickler.
+USE_INSECURE_UNPICKLER = False
 PICKLE_RECEIVER_INTERFACE = <%= @pickle_receiver_interface %>
 PICKLE_RECEIVER_PORT = 2004
 
@@ -40,6 +80,10 @@ CACHE_QUERY_PORT = 7002
 # degrade performance if logging on the same volume as the whisper data is stored.
 LOG_UPDATES = False
 
+# On some systems it is desirable for whisper to write synchronously.
+# Set this option to True if you'd like to try this. Basically it will
+# shift the onus of buffering writes from the kernel into carbon's cache.
+WHISPER_AUTOFLUSH = False
 
 # Enable AMQP if you want to receve metrics using an amqp broker
 # ENABLE_AMQP = False

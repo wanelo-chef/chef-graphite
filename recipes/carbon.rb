@@ -1,52 +1,59 @@
-package "python-twisted"
-package "python-simplejson"
 
-version = node[:graphite][:version]
-pyver = node[:graphite][:python_version]
+include_recipe 'smf'
 
-remote_file "/usr/src/carbon-#{version}.tar.gz" do
-  source node[:graphite][:carbon][:uri]
-  checksum node[:graphite][:carbon][:checksum]
+package node['graphite']['carbon']['package']
+
+service 'carbon-cache' do
+  supports :restart => true, :reload => true, :enable => true, :disable => true
+  action :nothing
 end
 
-execute "untar carbon" do
-  command "tar xzf carbon-#{version}.tar.gz"
-  creates "/usr/src/carbon-#{version}"
-  cwd "/usr/src"
+template '/opt/custom/bin/carbon-cache.sh' do
+  mode 0755
 end
 
-execute "install carbon" do
-  command "python setup.py install"
-  creates "/opt/graphite/lib/carbon-#{version}-py#{pyver}.egg-info"
-  cwd "/usr/src/carbon-#{version}"
+smf 'carbon-cache' do
+  manifest_type 'graphite'
+  user node['graphite']['carbon']['user']
+  group node['graphite']['carbon']['group']
+  start_command '/opt/custom/bin/carbon-cache.sh %m'
+  stop_command '/opt/custom/bin/carbon-cache.sh %m'
+  stop_timeout 60
+  duration 'transient'
 end
 
-template "/opt/graphite/conf/carbon.conf" do
-  owner node['apache']['user']
-  group node['apache']['group']
-  variables( :line_receiver_interface => node[:graphite][:carbon][:line_receiver_interface],
-             :pickle_receiver_interface => node[:graphite][:carbon][:pickle_receiver_interface],
-             :cache_query_interface => node[:graphite][:carbon][:cache_query_interface] )
-  notifies :restart, "service[carbon-cache]"
+
+directory node['graphite']['carbon']['local_data_dir'] do
+  recursive true
+  owner node['graphite']['carbon']['user']
+  group node['graphite']['carbon']['group']
 end
 
-template "/opt/graphite/conf/storage-schemas.conf" do
-  owner node['apache']['user']
-  group node['apache']['group']
+listen_interface = node.send node['graphite']['carbon']['listen_attribute']
+
+template '/opt/local/etc/graphite/carbon.conf' do
+  variables( 'local_data_dir' => node['graphite']['carbon']['local_data_dir'],
+             'line_receiver_interface' => listen_interface,
+             'pickle_receiver_interface' => listen_interface,
+             'cache_query_interface' => listen_interface )
+  notifies :restart, 'service[carbon-cache]'
 end
 
-execute "carbon: change graphite storage permissions to apache user" do
-  command "chown -R #{node['apache']['user']}:#{node['apache']['group']} /opt/graphite/storage"
-  only_if do
-    f = File.stat("/opt/graphite/storage")
-    f.uid == 0 and f.gid == 0
-  end
-end
-
-directory "/opt/graphite/lib/twisted/plugins/" do
-  owner node['apache']['user']
-  group node['apache']['group']
-end
-
-runit_service "carbon-cache" do
-end
+#
+#template '/opt/graphite/conf/storage-schemas.conf' do
+#  owner node['graphite']['carbon']['user']
+#  group node['graphite']['carbon']['group']
+#end
+#
+#execute 'carbon: change graphite storage permissions to apache user' do
+#  command "chown -R #{node['graphite']['carbon']['user']}:#{node['graphite']['carbon']['group']} /opt/graphite/storage"
+#  only_if do
+#    f = File.stat('/opt/graphite/storage')
+#    f.uid == 0 and f.gid == 0
+#  end
+#end
+#
+#directory '/opt/graphite/lib/twisted/plugins/' do
+#  owner node['graphite']['carbon']['user']
+#  group node['graphite']['carbon']['group']
+#end
