@@ -9,6 +9,7 @@ default['graphite']['web']['listen_attribute'] = 'ipaddress'
 default['graphite']['web']['port'] = 80
 default['graphite']['web']['user'] = 'graphite'
 default['graphite']['web']['group'] = 'graphite'
+default['graphite']['web']['workers'] = 10
 
 default['graphite']['web']['allowed_hosts'] = []
 default['graphite']['web']['secret_key'] = ''

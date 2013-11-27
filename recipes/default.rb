@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-#include_recipe "python"
+include_recipe "python"
 
 include_recipe 'graphite::carbon'
 include_recipe 'graphite::web'

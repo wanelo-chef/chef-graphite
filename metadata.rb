@@ -9,8 +9,6 @@ version          '1.0.0'
 supports 'smartos'
 
 depends 'smf'
-#depends "python"
-#depends "apache2"
-#depends "runit"
+depends "python"
 #
 #suggests "graphiti"

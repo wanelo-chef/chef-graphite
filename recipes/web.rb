@@ -1,15 +1,20 @@
 require 'securerandom'
 
+# Install dependencies
 include_recipe 'smf'
 
 node['graphite']['web']['packages'].each do |pkg|
   package pkg
 end
 
+python_pip 'gunicorn'
+
 service 'graphite-web' do
   supports :restart => true, :reload => true, :enable => true, :disable => true
   action :nothing
 end
+
+# Create missing directories
 
 directory '/var/log/graphite' do
   group node['graphite']['web']['group']
@@ -25,6 +30,8 @@ end
 end
 
 node.set_unless['graphite']['web']['secret_key'] = SecureRandom.base64(64)
+
+# Configure graphite web
 
 template '/opt/local/lib/python2.7/site-packages/graphite/app_settings.py' do
   owner node['graphite']['web']['user']
@@ -52,27 +59,36 @@ execute 'install graphite sqlite database' do
   not_if { File.exists?('/opt/graphite/storage/graphite.db')}
 end
 
+# Install SMF
+
 listen_address = node.send node['graphite']['web']['listen_attribute']
 
 smf 'graphite-web' do
   manifest_type 'graphite'
   user node['graphite']['web']['user']
   group node['graphite']['web']['group']
-  start_command '/opt/local/bin/django-admin.py runserver --pythonpath=$PYTHONPATH --settings=graphite.settings %{config/bind_address}:%{config/bind_port} &'
+  start_command %w{
+    /opt/local/bin/gunicorn_django
+    -b %{config/bind_address}:%{config/bind_port}
+    --workers %{config/workers}
+    --pythonpath=$PYTHONPATH
+    --daemon
+  }.join(' ')
   stop_timeout 60
 
-  working_directory '/opt/graphite'
+  working_directory '/opt/local/lib/python2.7/site-packages/graphite'
 
   property_groups({
     'config' => {
       'bind_address' => listen_address,
-      'bind_port' => node['graphite']['web']['port']
+      'bind_port' => node['graphite']['web']['port'],
+      'workers' => node['graphite']['web']['workers']
     }
   })
 
   environment 'LANG' => 'en_US.UTF-8',
               'LC_ALL' => 'en_US.UTF-8',
-              'PYTHONPATH' => '/opt/graphite:/opt/local/lib/python2.7/site-packages/graphite:/opt/local/lib/python2.7'
+              'PYTHONPATH' => '/opt/local/lib/python2.7/site-packages/graphite:/opt/local/lib/python2.7'
 
   notifies :restart, 'service[graphite-web]'
 end
