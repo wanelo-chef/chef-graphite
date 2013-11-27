@@ -89,5 +89,10 @@ smf 'graphite-web' do
               'LC_ALL' => 'en_US.UTF-8',
               'PYTHONPATH' => '/opt/local/lib/python2.7/site-packages/graphite:/opt/local/lib/python2.7'
 
+  dependencies [
+      {'name' => 'carbon-cache', 'fmris' => ['svc:/graphite/management/carbon-cache'],
+       'grouping' => 'require_all', 'restart_on' => 'none', 'type' => 'service'}
+  ]
+
   notifies :restart, 'service[graphite-web]'
 end
