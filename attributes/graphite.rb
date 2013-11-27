@@ -6,7 +6,7 @@ default['graphite']['carbon']['group'] = 'graphite'
 
 default['graphite']['web']['packages'] = %w(py27-expat py27-graphite-web)
 default['graphite']['web']['listen_attribute'] = 'ipaddress'
-default['graphite']['web']['port'] = 80
+default['graphite']['web']['port'] = 8080
 default['graphite']['web']['user'] = 'graphite'
 default['graphite']['web']['group'] = 'graphite'
 default['graphite']['web']['workers'] = 10
@@ -14,15 +14,7 @@ default['graphite']['web']['workers'] = 10
 default['graphite']['web']['allowed_hosts'] = []
 default['graphite']['web']['secret_key'] = ''
 
+default['graphite']['proxy']['listen'] = 80
 default['graphite']['proxy']['server_name'] = ''
 default['graphite']['proxy']['server_aliases'] = []
 
-#default[:graphite][:graphite_web][:uri] = "http://launchpadlibrarian.net/82112308/graphite-web-#{node[:graphite][:version]}.tar.gz"
-#default[:graphite][:graphite_web][:checksum] = "cc78bab7fb26b"
-#
-#default[:graphite][:carbon][:line_receiver_interface] =   "127.0.0.1"
-#default[:graphite][:carbon][:pickle_receiver_interface] = "127.0.0.1"
-#default[:graphite][:carbon][:cache_query_interface] =     "127.0.0.1"
-#
-#default[:graphite][:password] = "change_me"
-#default[:graphite][:url] = "graphite"

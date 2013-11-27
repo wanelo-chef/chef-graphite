@@ -61,7 +61,7 @@ end
 
 # Install SMF
 
-listen_address = node.send node['graphite']['web']['listen_attribute']
+listen_address = graphite_socket
 
 smf 'graphite-web' do
   manifest_type 'graphite'
@@ -69,7 +69,7 @@ smf 'graphite-web' do
   group node['graphite']['web']['group']
   start_command %w{
     /opt/local/bin/gunicorn_django
-    -b %{config/bind_address}:%{config/bind_port}
+    -b %{config/bind}
     --workers %{config/workers}
     --pythonpath=$PYTHONPATH
     --daemon
@@ -80,8 +80,7 @@ smf 'graphite-web' do
 
   property_groups({
     'config' => {
-      'bind_address' => listen_address,
-      'bind_port' => node['graphite']['web']['port'],
+      'bind' => listen_address,
       'workers' => node['graphite']['web']['workers']
     }
   })
