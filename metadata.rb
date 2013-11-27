@@ -8,7 +8,8 @@ version          '1.0.0'
 
 supports 'smartos'
 
+depends 'nginx'
+depends 'python'
 depends 'smf'
-depends "python"
 #
 #suggests "graphiti"

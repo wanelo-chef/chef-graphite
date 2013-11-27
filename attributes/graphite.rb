@@ -14,6 +14,9 @@ default['graphite']['web']['workers'] = 10
 default['graphite']['web']['allowed_hosts'] = []
 default['graphite']['web']['secret_key'] = ''
 
+default['graphite']['proxy']['server_name'] = ''
+default['graphite']['proxy']['server_aliases'] = []
+
 #default[:graphite][:graphite_web][:uri] = "http://launchpadlibrarian.net/82112308/graphite-web-#{node[:graphite][:version]}.tar.gz"
 #default[:graphite][:graphite_web][:checksum] = "cc78bab7fb26b"
 #
