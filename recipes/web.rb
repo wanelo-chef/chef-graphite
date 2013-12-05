@@ -72,6 +72,7 @@ smf 'graphite-web' do
     -b %{config/bind}
     --workers %{config/workers}
     --pythonpath=$PYTHONPATH
+    --max-requests=20
     --daemon
   }.join(' ')
   stop_timeout 60
